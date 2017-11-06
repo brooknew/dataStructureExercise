@@ -6,6 +6,8 @@
 
 using namespace std ;
 
+#if 1
+
 typedef struct ListNode* NodePtr ;
 
 struct ListNode {
@@ -44,52 +46,181 @@ List readList(istream& Istream)
 	}
 	List L0 , L ;
 	L0 = L = & LN[address] ;
+	int num = 1 ;
 	while( L->addressN != -1 ){
 		L->next = & LN[ L->addressN] ;
 		L = L->next ;
+		num ++ ;
 	}
+	//cout << "tot:"<<num <<endl ;
 //
-	printList(  L0 ) ;
+	//printList(  L0 ) ;
 //
-	i = 0 ;
-
-	L= L0 ;
-	List tmp ;
-	while ( i < K-1 ) {
-		tmp = L->next->next ;
-		L->next->next = L0 ;
-		L->next->addressN = L0->addressC ;
-		L0 = L->next ;
-		L->next = tmp ;
-		i ++ ; 
+	int count = 0 ;
+	NodePtr head0 = (NodePtr)malloc(sizeof(*head0) ) ;
+	head0->next = L0 ;
+	NodePtr head = (NodePtr)malloc(sizeof(*head) ) ;
+	//head->next = L0 ;
+	List tmp =  L0 ;
+	List lastTail ;
+	while( count <  num /K  ) {
+		i = 1 ;		
+		head->next = tmp ;
+		List L2 = head->next  ;
+		while ( i < K ) {
+			tmp = L2->next   ; //L2:first , tmp:2nd 
+			L2->next = tmp->next ; //L2(first): linked to 3rd
+			//L2->addressN = tmp->next->addressC ;
+			tmp->next = head->next ; 
+			tmp->addressN = head->next->addressC ;
+		
+			head->next = tmp ; //						
+			i++ ;
+		}
+		
+		if( count == 0 ){
+			head0->next = head->next ;
+			lastTail = L2 ;
+		}
+		else {
+			lastTail->next = head->next ;
+			lastTail = L2 ;
+		}
+		
+		
+		tmp = L2 -> next ;
+		if( tmp == NULL ) {
+			L2->addressN = -1 ;
+			break ;
+		}
+		
+		count ++ ;
 	}
-	if( L->next )
-		L->addressN = L->next->addressC ;
-	else
-		L->addressN = -1 ;
-	return L0 ;
+	return head0->next ;
 }
 
 
-
+#define UsingFileIn 0 
 int main() 
 {
+#if UsingFileIn
 	string filen="ReverseLinkedList.txt" ;
 	ifstream ifs( filen.c_str() ) ;
-	//ifstream ifs( filen ) ;
 	List R = readList( ifs ) ;
-	//List R = readList( cin ) ;
+#else
+	List R = readList( cin ) ;
+#endif
+	
 	printList( R ) ;
+
+#if UsingFileIn
 	ifs.close() ;
+#endif 
 	return 0 ;
 }
 
+#endif
+
+#if 0
+
+typedef struct LNode
+{
+    int     data;
+    struct LNode    *next;
+}LNode, *LinkedList;
 
 
 
+LinkedList ReverseSinglyLinkedList(LinkedList list)
+{
+    LinkedList  newList;    //新链表的头结点
+    LNode       *tmp;       //指向list的第一个结点，也就是要摘除的结点
+ 
+    //
+    //参数为空或者内存分配失败则返回NULL
+    //
+    if (list == NULL || (newList = (LinkedList)malloc(sizeof(LNode))) == NULL)
+    {
+        return NULL;
+    }
+ 
+    //
+    //初始化newList
+    //
+    newList->data = list->data;
+    newList->next = NULL;
+ 
+    //
+    //依次将list的第一个结点放到newList的第一个结点位置
+    //
+    while (list->next != NULL)
+    {
+        tmp = newList->next;         //保存newList中的后续结点
+        newList->next = list->next;       //将list的第一个结点放到newList中
+        list->next = list->next->next;     //从list中摘除这个结点
+        newList->next->next = tmp;        //恢复newList中后续结点的指针
+    }
+ 
+    //
+    //原头结点应该释放掉，并返回新头结点的指针
+    //
+    free(list);
+    return newList;
+}
+
+ 
+LinkedList ReverseSinglyLinkedList1(LinkedList list)
+{
+    LNode   *tmp = NULL;
+    LNode   *p = NULL;
+ 
+    if (list == NULL)
+    {
+        return NULL;
+    }
+    tmp = list->next;
+    while (tmp->next != NULL)
+    {
+        p = tmp->next;
+        tmp->next = p->next;
+        p->next = list->next;
+        list->next = p;
+    }
+    return list;
+}
+
+
+void printList( LinkedList L ) 
+{
+	LinkedList L1 = L->next ;
+	while( L1 ) {
+		cout << L1->data << " "  ;
+		L1 = L1->next ;
+	}
+
+}
 
 
 
+int main()
+{
+	LinkedList L = (LinkedList)malloc( sizeof( *L ) ) ;
+	L->data = -1 ;
+	L->next = NULL ;
+	LinkedList L0 = L ;
+	for( int i = 1 ; i < 16 ; i ++ ) {
+		LinkedList L1 = (LinkedList)malloc( sizeof( *L1 ) ) ;
+		L1->data  = i ;
+		L1->next = NULL ;
+		L->next = L1 ;
+		L = L1 ;
+	}
+	printList( L0 ) ;
+	cout << endl ;
+	LinkedList NL = ReverseSinglyLinkedList1(L0) ;
+	printList( NL ) ;
+}
+#endif 
 
 /* 
 时间限制: 400ms
