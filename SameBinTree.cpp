@@ -45,7 +45,7 @@ BST inputOriginBst( istream& ist , int& numNode ,  int& NumTestSeq )
 	return bst ;
 }
 
-BST inputTestBst( istream  ist  , int numNode ) 
+BST inputTestBst( istream&  ist  , int numNode ) 
 {
 	BST bst = NULL  ;
 	int n = numNode   ;
@@ -72,7 +72,25 @@ string travseralBst( BST bst  )
 	return str ;
 }
 
-#define UsingFileINPUT 1
+bool compareBst( BST bst1 , BST bst2 )
+{
+	if( bst1 == bst2 ) 
+		return true ;
+	else if( (bst1) && (bst2) ){
+		if( bst1->data != bst2->data )
+			return false ;
+		else {
+			bool b = compareBst( bst1->left , bst2->left ) ;
+			if( !b ) 
+				return b ;
+			return compareBst( bst1->right , bst2->right ) ;
+		}
+	}else{
+		return false ;
+	}
+}
+
+#define UsingFileINPUT 0
 int main() 
 {
 #if UsingFileINPUT 
@@ -86,13 +104,15 @@ int main()
 		BST bst = inputOriginBst( ist ,  numNode ,  NumTestSeq )  ;
 		if( numNode == 0 )
 			break ;
-		string str = travseralBst( bst  );
+		//string str = travseralBst( bst  );
 		int i= 0 ;
 		while ( i++ < NumTestSeq ) {
 			BST bst1 = inputTestBst( ist , numNode ) ;
-			string str1 = travseralBst( bst1  );
-			int ret = str.compare( str1 ) ;
-			if( ret ==0 ) 
+			//string str1 = travseralBst( bst1  );
+			//int ret = str.compare( str1 ) ;
+			bool ret = compareBst(  bst , bst1 ); // more fast 
+			//if( ret == 0 ) 
+			if ( ret )
 				cout << "Yes"<<endl ;
 			else
 				cout << "No"<< endl ;
