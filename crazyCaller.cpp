@@ -13,16 +13,16 @@ typedef struct CallNode *CallNodePtr ;
 
 
 struct CallNode {
-	string* call ;
+	char  call[12] ;
 	int count ;
 	CallNodePtr next ;
 } ;
 
 
-int hash1(string s) 
+int hash1(char s[12]) 
 {
-	string s1 = s.substr( CALL_BITNUM - HASH_BITNUM , HASH_BITNUM ) ;
-	int intr = atoi( s1.c_str() ) ;
+	//string s1 = s.substr( CALL_BITNUM - HASH_BITNUM , HASH_BITNUM ) ;
+	int intr = atoi( s+CALL_BITNUM - HASH_BITNUM  ) ;
 	return intr ;
 }
 
@@ -35,25 +35,25 @@ void initHashTable()
 }
 
 
-void insertHashItem( string s)
+void insertHashItem( char  s[12] )
 {
 	int h = hash1(  s ) ;
 	CallNodePtr next = hashTable[h];
 	if( next == NULL ) {
 		CallNodePtr newNode =(CallNodePtr) malloc( sizeof(*newNode) ) ;
-		newNode->call = new string (s) ;
+		strcpy( newNode->call , s ) ;
 		newNode->count = 1 ;
 		newNode->next = NULL ;
 		hashTable[h] = newNode ;
 		return ;
 	}
 	while (next ) {
-		if( next->call->compare( s ) == 0 ) { 
+		if( strcmp( next->call ,  s ) == 0 ) { 
 			next->count ++ ;
 			break ;
 		}else if( next->next == NULL ) {
 			CallNodePtr newNode =(CallNodePtr) malloc( sizeof(*newNode) ) ;
-			newNode->call = new string(s) ;
+			strcpy( newNode->call , s ) ;
 			newNode->count = 1 ;
 			newNode->next = NULL ;
 			next->next = newNode ;
@@ -65,7 +65,7 @@ void insertHashItem( string s)
 
 int maxCallCount = -1 ;
 int maxCallCount_Callers  = 0   ;
-string*  maxCallCount_of_phoneNumber ;
+char*  maxCallCount_of_phoneNumber ;
 
 void findMax() 
 {
@@ -74,12 +74,12 @@ void findMax()
 		while( cnp ) {
 			if( maxCallCount < cnp->count  ) {
 				maxCallCount = cnp->count ;
-				maxCallCount_of_phoneNumber = cnp->call ;
+				maxCallCount_of_phoneNumber  =  cnp->call  ;
 				maxCallCount_Callers = 1 ;
 			}else if( maxCallCount == cnp->count ) {
 				maxCallCount_Callers ++ ;
-				if( maxCallCount_of_phoneNumber->compare( *cnp->call ) > 0 ) {
-					maxCallCount_of_phoneNumber =  cnp->call  ;
+				if( strcmp( maxCallCount_of_phoneNumber , cnp->call ) > 0 ) {
+					 maxCallCount_of_phoneNumber  = cnp->call ;
 				}
 			}
 			cnp = cnp->next ;
@@ -94,7 +94,7 @@ void countCallers(istream& is)
 	is >>  N ;
 	if( N == 0 )
 		return ;
-	string s ;
+	char s[12] ;
 	initHashTable() ;
 	for ( int i = 0 ; i < N ; i ++ ){
 		is >> s ;
@@ -103,7 +103,7 @@ void countCallers(istream& is)
 		insertHashItem(s) ;	
 	}
 	findMax()  ;
-	cout << *maxCallCount_of_phoneNumber << " " << maxCallCount  ;
+	cout << maxCallCount_of_phoneNumber << " " << maxCallCount  ;
 	if( maxCallCount_Callers  > 1 )
 		cout << " " <<  maxCallCount_Callers    ;
 	cout << endl ;
@@ -116,7 +116,7 @@ void countCallers(istream& is)
 */
  }
 
-#define UsingFileIn 1
+#define UsingFileIn 0
 
 int main() 
 {
